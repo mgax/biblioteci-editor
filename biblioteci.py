@@ -2,8 +2,6 @@ import flask
 from flask.ext.script import Manager
 import requests
 
-BIBLIOTECI_URL = ('https://raw2.github.com/mgax/biblioteci/'
-                  'master/biblioteci.geojson')
 
 views = flask.Blueprint('views', __name__)
 
@@ -15,7 +13,7 @@ def home():
 
 @views.route('/data')
 def data():
-    data = requests.get(BIBLIOTECI_URL).content
+    data = requests.get(flask.current_app.config['BIBLIOTECI_URL']).content
     return flask.Response(data, content_type='application/json')
 
 
