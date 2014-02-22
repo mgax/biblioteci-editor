@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
+from biblioteci import create_app, create_manager
+
 
 def main():
-    from biblioteci import create_app, create_manager
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('werkzeug').setLevel(logging.INFO)
     app = create_app()
     manager = create_manager(app)
     manager.run()

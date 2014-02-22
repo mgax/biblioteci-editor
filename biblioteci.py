@@ -1,6 +1,10 @@
+import logging
 import flask
 from flask.ext.script import Manager
 import requests
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 views = flask.Blueprint('views', __name__)
