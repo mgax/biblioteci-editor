@@ -73,4 +73,5 @@ def get_data():
     file_map = {f['path']: f['sha'] for f in file_list}
     accept_header = {'Accept': 'application/vnd.github.v3.raw'}
     data = api.get('git/blobs/' + file_map[path], headers=accept_header)
+    logger.info("Rate limit remaining: %s", api.rate_limit_remaining)
     return data
