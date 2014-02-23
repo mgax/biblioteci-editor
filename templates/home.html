@@ -11,11 +11,26 @@
       .edit-saving .edit-saving-message { display: block; }
       .edit-saving .form-group { display: none; }
       .edit-saving .modal-footer button { display: none; }
+      #auth { position: absolute; top: 0; right: 0; padding: 5px;
+              background: #fff; border: 2px solid #999; }
+      #auth .picture { max-width: 30px; }
     </style>
   </head>
 
   <body>
     <div id="map"></div>
+
+    <div id="auth">
+      {% if identity %}
+        {{ identity['name'] }}
+        <img src="{{ identity['picture'] }}" class="picture">
+        <a class="btn btn-default btn-xs"
+           href="{{ url_for('logout') }}">logout</a>
+      {% else %}
+        <a class="btn btn-primary btn-xs"
+           href="{{ url_for('login') }}">login cu google</a>
+      {% endif %}
+    </div>
 
     <div class="modal fade" id="edit-modal" tabindex="-1"
          role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

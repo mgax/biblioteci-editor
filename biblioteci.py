@@ -32,7 +32,11 @@ views = flask.Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return flask.render_template('home.html', form=PropertiesForm())
+    return flask.render_template(
+        'home.html',
+        form=PropertiesForm(),
+        identity=flask.session.get('identity'),
+    )
 
 
 @views.route('/data')
