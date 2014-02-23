@@ -2,6 +2,7 @@ import logging
 import flask
 from flask.ext.script import Manager
 from flask.ext.wtf import Form
+from werkzeug.contrib.cache import SimpleCache
 from wtforms import TextField, IntegerField
 from wtforms.widgets import HiddenInput, TextArea
 import requests
@@ -9,6 +10,8 @@ import github
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+cache = SimpleCache()
 
 
 class PropertiesForm(Form):
@@ -32,7 +35,11 @@ def home():
 
 @views.route('/data')
 def data():
-    return flask.jsonify(github.get_data())
+    the_data = cache.get('the_data')
+    if the_data is None:
+        the_data = github.get_data()
+        cache.set('the_data', the_data)
+    return flask.jsonify(the_data)
 
 
 def update_feature(data):
@@ -52,6 +59,7 @@ def save():
     form = PropertiesForm()
     if form.validate_on_submit():
         update_feature(form.data)
+        cache.clear()
         return flask.jsonify(ok=True)
     else:
         return flask.jsonify(ok=False)
