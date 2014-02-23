@@ -45,7 +45,7 @@ def _setup():
     return api, branch, path
 
 
-def commit(data, message):
+def commit(data, message, author):
     api, branch, path = _setup()
     base = api.get('git/refs/heads/' + branch)['object']['sha']
     base_tree = api.get('git/commits/' + base)['tree']['sha']
@@ -55,7 +55,12 @@ def commit(data, message):
         'tree': [{'path': path, 'content': data_json, 'mode': '100644'}],
     }
     tree = api.post('git/trees', tree_data)['sha']
-    commit_data = {'parents': [base], 'tree': tree, 'message': message}
+    commit_data = {
+        'parents': [base],
+        'tree': tree,
+        'message': message,
+        'author': author,
+    }
     commit = api.post('git/commits', commit_data)['sha']
     api.patch('git/refs/heads/' + branch, {'sha': commit})
     logger.info("Rate limit remaining: %s", api.rate_limit_remaining)

@@ -57,8 +57,9 @@ def update_feature(data):
     else:
         raise RuntimeError("Feature not found: %d", data['id'])
     properties.update(data)
-    message = u"Edit via website\n\nIP address: %s" % flask.request.remote_addr
-    github.commit(document, message)
+    identity = flask.session.get('identity')
+    author = {'name': identity['name'], 'email': identity['email']}
+    github.commit(document, u"Edit via website", author)
 
 
 @views.route('/save', methods=['POST'])
