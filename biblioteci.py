@@ -90,8 +90,8 @@ def setup_oauth(app):
 
     @app.route('/logout')
     def logout():
-        flask.session.pop('google_token', None)
-        return flask.redirect(flask.url_for('index'))
+        flask.session.pop('identity', None)
+        return flask.redirect(flask.url_for('views.home'))
 
     @app.route('/login/google')
     @google.authorized_handler
@@ -101,20 +101,22 @@ def setup_oauth(app):
                 flask.request.args['error_reason'],
                 flask.request.args['error_description'],
             )
-        flask.session['google_token'] = (resp['access_token'], '')
+        flask.session['identity'] = {
+            'google_token': (resp['access_token'], ''),
+        }
         me = google.get('userinfo')
-        return flask.jsonify(data=me.data)
+        flask.session['identity']['name'] = me.data['name']
+        flask.session['identity']['email'] = me.data['email']
+        flask.session['identity']['picture'] = me.data['picture']
+        return flask.redirect(flask.url_for('views.home'))
 
     @google.tokengetter
     def get_google_oauth_token():
-        return flask.session.get('google_token')
+        return flask.session.get('identity', {}).get('google_token')
 
     @app.route('/_whoami')
     def whoami():
-        if 'google_token' in flask.session:
-            me = google.get('userinfo')
-            return flask.jsonify(data=me.data)
-        return flask.jsonify()
+        return flask.jsonify(flask.session.get('identity', {}))
 
 
 def create_app():
