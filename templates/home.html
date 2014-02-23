@@ -23,7 +23,16 @@
             <h4 class="modal-title" id="myModalLabel">Modal title</h4>
           </div>
           <div class="modal-body">
-            :)
+            {% for field in form %}
+              {% if field.widget.input_type == 'hidden' %}
+                {{ field }}
+              {% else %}
+                <div class="form-group">
+                  <label for="{{ field.id }}">{{ field.label }}</label>
+                  {{ field(class='form-control') }}
+                </div>
+              {% endif %}
+            {% endfor %}
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default"

@@ -1,10 +1,17 @@
 import logging
 import flask
 from flask.ext.script import Manager
+from flask.ext.wtf import Form
+from wtforms import TextField
 import requests
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+class PropertiesForm(Form):
+    name = TextField('name')
+    description = TextField('description')
 
 
 views = flask.Blueprint('views', __name__)
@@ -12,7 +19,7 @@ views = flask.Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return flask.render_template('home.html')
+    return flask.render_template('home.html', form=PropertiesForm())
 
 
 @views.route('/data')
