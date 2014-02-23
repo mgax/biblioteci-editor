@@ -54,27 +54,49 @@ def data():
     return flask.jsonify(the_data)
 
 
-def update_feature(data):
+def update_geojson(new_properties, lat, lng):
     document = github.get_data()
-    for feature in document['features']:
-        properties = feature['properties']
-        if properties['id'] == data['id']:
-            break
+
+    if new_properties['id'] == -1:
+        last_id = max(f['properties'].get('id', 0)
+                      for f in document['features'])
+        new_properties['id'] = last_id + 1
+        feature = {
+            'type': 'Feature',
+            'geometry': {
+                'type': "Point",
+                'coordinates': [float(lng), float(lat)],
+            },
+            'properties': new_properties,
+        }
+        document['features'].append(feature)
+
     else:
-        raise RuntimeError("Feature not found: %d", data['id'])
-    properties.update(data)
+        for feature in document['features']:
+            properties = feature['properties']
+            if properties['id'] == new_properties['id']:
+                break
+        else:
+            raise RuntimeError("Feature not found: %d", new_properties['id'])
+
+        properties.update(new_properties)
+
     identity = get_identity()
     author = {'name': identity['name'], 'email': identity['email']}
     github.commit(document, u"Edit via website", author)
+
+    return feature
 
 
 @views.route('/save', methods=['POST'])
 def save():
     form = PropertiesForm()
     if form.validate_on_submit():
-        update_feature(form.data)
+        lat = flask.request.form.get('lat', type=float)
+        lng = flask.request.form.get('lng', type=float)
+        feature = update_geojson(form.data, lat, lng)
         cache.clear()
-        return flask.jsonify(ok=True)
+        return flask.jsonify(ok=True, feature=feature)
     else:
         return flask.jsonify(ok=False)
 

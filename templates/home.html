@@ -59,6 +59,8 @@
                 </div>
               {% endif %}
             {% endfor %}
+            <input type="hidden" name="lat">
+            <input type="hidden" name="lng">
             <p class="edit-saving-message">
               Se salvează ...
             </p>
@@ -91,28 +93,40 @@
     <script>
       var map = L.map('map').fitBounds([[48.17, 20.06], [43.50, 29.67]]);
       var properties;
+      var editor_is_new;
+      var new_latlng;
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">' +
                        'OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      function show_editor(feature_properties) {
+      var layer = L.geoJson([]);
+      layer.addTo(map);
+
+      function show_editor(feature_properties, is_new) {
         properties = feature_properties;
+        editor_is_new = is_new;
         var set = function(input) {
           input.val(properties[input.attr('name')]);
         };
         $('#edit .form-control').each(function(n, el) { set($(el)); });
         set($('#edit [name=id]'));
+        set($('#edit [name=lat]'));
+        set($('#edit [name=lng]'));
         $('#edit-modal').modal();
       }
 
       $.get({{ url_for('.data')|tojson|safe }}, function(data) {
-        var layer = L.geoJson(data);
-        layer.addTo(map);
+        layer.addData(data);
         layer.on('click', function(evt) {
-          show_editor(evt.layer.feature.properties);
+          show_editor(evt.layer.feature.properties, false);
         });
+      });
+
+      map.on('contextmenu', function(evt) {
+        new_latlng = evt.latlng;
+        show_editor({id: -1, lat: evt.latlng.lat, lng: evt.latlng.lng}, true);
       });
 
       $('#edit').submit(function(evt) {
@@ -122,6 +136,9 @@
         $.post({{ url_for('.save')|tojson|safe }}, data, function(response) {
           if(response.ok) {
             $('#edit-modal').modal('hide');
+            if(editor_is_new) {
+              layer.addData([response.feature]);
+            }
             for(var n = 0; n < data.length; n ++) {
               var kv = data[n];
               properties[kv.name] = kv.value;
