@@ -57,6 +57,7 @@
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script>
       var map = L.map('map').fitBounds([[48.17, 20.06], [43.50, 29.67]]);
+      var properties;
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">' +
@@ -67,7 +68,7 @@
         var layer = L.geoJson(data);
         layer.addTo(map);
         layer.on('click', function(evt) {
-          var properties = evt.layer.feature.properties;
+          properties = evt.layer.feature.properties;
           var set = function(input) {
             input.val(properties[input.attr('name')]);
           };
@@ -84,6 +85,10 @@
         $.post({{ url_for('.save')|tojson|safe }}, data, function(response) {
           if(response.ok) {
             $('#edit-modal').modal('hide');
+            for(var n = 0; n < data.length; n ++) {
+              var kv = data[n];
+              properties[kv.name] = kv.value;
+            }
           }
           else {
             alert("A avut loc o eroare la salvare :(");
