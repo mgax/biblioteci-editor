@@ -5,6 +5,7 @@ from flask.ext.wtf import Form
 from wtforms import TextField, IntegerField
 from wtforms.widgets import HiddenInput
 import requests
+import github
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -30,10 +31,23 @@ def data():
     return flask.Response(data, content_type='application/json')
 
 
+def update_feature(data):
+    document = github.get_data()
+    for feature in document['features']:
+        properties = feature['properties']
+        if properties['id'] == data['id']:
+            break
+    else:
+        raise RuntimeError("Feature not found: %d", data['id'])
+    properties.update(data)
+    github.commit(document)
+
+
 @views.route('/save', methods=['POST'])
 def save():
     form = PropertiesForm()
     if form.validate_on_submit():
+        update_feature(form.data)
         return flask.jsonify(ok=True)
     else:
         return flask.jsonify(ok=False)
