@@ -1,3 +1,4 @@
+# encoding: utf-8
 import logging
 import flask
 from flask.ext.script import Manager
@@ -16,15 +17,15 @@ cache = SimpleCache()
 
 
 class PropertiesForm(Form):
-    id = IntegerField('id', widget=HiddenInput())
-    name = TextField('name')
-    description = TextField('description', widget=TextArea())
-    address = TextField('address')
-    locality = TextField('locality')
-    website_url = TextField('website_url')
-    catalog_url = TextField('catalog_url')
-    facebook_url = TextField('facebook_url')
-    open_hours = TextField('open_hours')
+    id = IntegerField(widget=HiddenInput())
+    name = TextField(u"Nume")
+    description = TextField(u"Descriere", widget=TextArea())
+    address = TextField(u"Adresă")
+    locality = TextField(u"Localitate")
+    website_url = TextField(u"Website")
+    catalog_url = TextField(u"Catalog")
+    facebook_url = TextField(u"Facebook")
+    open_hours = TextField(u"Program")
 
 
 views = flask.Blueprint('views', __name__)
