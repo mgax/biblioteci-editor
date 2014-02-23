@@ -2,7 +2,8 @@ import logging
 import flask
 from flask.ext.script import Manager
 from flask.ext.wtf import Form
-from wtforms import TextField, HiddenField
+from wtforms import TextField, IntegerField
+from wtforms.widgets import HiddenInput
 import requests
 
 logger = logging.getLogger(__name__)
@@ -10,7 +11,7 @@ logger.setLevel(logging.INFO)
 
 
 class PropertiesForm(Form):
-    id = HiddenField('id')
+    id = IntegerField('id', widget=HiddenInput())
     name = TextField('name')
     description = TextField('description')
 
