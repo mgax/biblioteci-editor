@@ -13,6 +13,7 @@ class RepoClient(object):
     def __init__(self, repo, token):
         self.repo = repo
         self.token = token
+        self.session = requests.Session()
 
     def _request(self, method, resource, data, headers):
         url = GITHUB_URL + self.repo + '/' + resource
@@ -20,7 +21,7 @@ class RepoClient(object):
         kwargs = {'headers': headers}
         if data is not None:
             kwargs['data'] = flask.json.dumps(data)
-        resp = requests.request(method, url, **kwargs)
+        resp = self.session.request(method, url, **kwargs)
         if resp.status_code >= 400:
             logger.info("GitHub API error: %r", resp.json())
             raise RuntimeError("API error")
