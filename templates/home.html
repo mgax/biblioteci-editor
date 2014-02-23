@@ -15,7 +15,7 @@
 
     <div class="modal fade" id="edit-modal" tabindex="-1"
          role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <form class="modal-dialog" id="edit">
         <div class="modal-content">
           <div class="modal-header">
             <button data-dismiss="modal" aria-hidden="true"
@@ -37,7 +37,7 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-default"
                     data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>
@@ -62,6 +62,14 @@
           var properties = evt.layer.feature.properties;
           console.log(properties);
           $('#edit-modal').modal();
+        });
+      });
+
+      $('#edit').submit(function(evt) {
+        evt.preventDefault();
+        var data = $(this).serializeArray();
+        $.post({{ url_for('.save')|tojson|safe }}, data, function(response) {
+          console.log(response);
         });
       });
     </script>

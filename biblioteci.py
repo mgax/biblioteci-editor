@@ -28,6 +28,15 @@ def data():
     return flask.Response(data, content_type='application/json')
 
 
+@views.route('/save', methods=['POST'])
+def save():
+    form = PropertiesForm()
+    if form.validate_on_submit():
+        return flask.jsonify(ok=True)
+    else:
+        return flask.jsonify(ok=False)
+
+
 def create_app():
     app = flask.Flask(__name__)
     app.config.from_pyfile('settings.py', silent=True)
