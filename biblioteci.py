@@ -31,12 +31,17 @@ class PropertiesForm(Form):
 views = flask.Blueprint('views', __name__)
 
 
+def get_identity():
+    config = flask.current_app.config
+    return flask.session.get('identity', config.get('IDENTITY_DEBUG'))
+
+
 @views.route('/')
 def home():
     return flask.render_template(
         'home.html',
         form=PropertiesForm(),
-        identity=flask.session.get('identity'),
+        identity=get_identity(),
     )
 
 
@@ -58,7 +63,7 @@ def update_feature(data):
     else:
         raise RuntimeError("Feature not found: %d", data['id'])
     properties.update(data)
-    identity = flask.session.get('identity')
+    identity = get_identity()
     author = {'name': identity['name'], 'email': identity['email']}
     github.commit(document, u"Edit via website", author)
 
