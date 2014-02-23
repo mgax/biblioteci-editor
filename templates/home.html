@@ -14,10 +14,14 @@
       #auth { position: absolute; top: 0; right: 0; padding: 5px;
               background: #fff; border: 2px solid #999; }
       #auth .picture { max-width: 30px; }
+      .login-text { display: none; }
+      .no-auth .login-text { display: block; }
+      .no-auth #edit .form-group { display: none; }
+      .no-auth #edit .modal-footer button { display: none; }
     </style>
   </head>
 
-  <body>
+  <body class="{{ 'auth' if identity else 'no-auth' }}">
     <div id="map"></div>
 
     <div id="auth">
@@ -28,7 +32,7 @@
            href="{{ url_for('logout') }}">logout</a>
       {% else %}
         <a class="btn btn-primary btn-xs"
-           href="{{ url_for('login') }}">login cu google</a>
+           data-toggle="modal" data-target="#edit-modal">login</a>
       {% endif %}
     </div>
 
@@ -39,7 +43,7 @@
           <div class="modal-header">
             <button data-dismiss="modal" aria-hidden="true"
                     type="button" class="close">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            <h4 class="modal-title" id="myModalLabel">Editare</h4>
           </div>
           <div class="modal-body">
             {% for field in form %}
@@ -64,6 +68,13 @@
                 <span class="sr-only">se salvează</span>
               </div>
             </div>
+            <p class="login-text">
+              Pentru editare vă rugăm să vă autentificați folosind contul
+              Google. Numele și adresa de email vor fi salvate în istoria
+              modificărilor bazei de date.<br>
+              <a class="btn btn-primary"
+                 href="{{ url_for('login') }}">login cu google</a>
+            </p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default"
