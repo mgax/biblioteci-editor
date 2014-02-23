@@ -97,17 +97,21 @@
                        'OpenStreetMap</a> contributors'
       }).addTo(map);
 
+      function show_editor(feature_properties) {
+        properties = feature_properties;
+        var set = function(input) {
+          input.val(properties[input.attr('name')]);
+        };
+        $('#edit .form-control').each(function(n, el) { set($(el)); });
+        set($('#edit [name=id]'));
+        $('#edit-modal').modal();
+      }
+
       $.get({{ url_for('.data')|tojson|safe }}, function(data) {
         var layer = L.geoJson(data);
         layer.addTo(map);
         layer.on('click', function(evt) {
-          properties = evt.layer.feature.properties;
-          var set = function(input) {
-            input.val(properties[input.attr('name')]);
-          };
-          $('#edit .form-control').each(function(n, el) { set($(el)); });
-          set($('#edit [name=id]'));
-          $('#edit-modal').modal();
+          show_editor(evt.layer.feature.properties);
         });
       });
 
