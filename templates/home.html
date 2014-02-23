@@ -6,7 +6,10 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css">
     <style>
-      html, body, #map { height: 100%; margin: 0 }
+      html, body, #map { height: 100%; margin: 0; }
+      .edit-saving-message { display: none; }
+      .edit-saving .edit-saving-message { display: block; }
+      .edit-saving .form-group { display: none; }
     </style>
   </head>
 
@@ -36,6 +39,9 @@
                 </div>
               {% endif %}
             {% endfor %}
+            <p class="edit-saving-message">
+              Se salvează ...
+            </p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default"
@@ -58,12 +64,10 @@
       }).addTo(map);
 
       $.get({{ url_for('.data')|tojson|safe }}, function(data) {
-        console.log('got data');
         var layer = L.geoJson(data);
         layer.addTo(map);
         layer.on('click', function(evt) {
           var properties = evt.layer.feature.properties;
-          console.log(properties);
           var set = function(input) {
             input.val(properties[input.attr('name')]);
           };
@@ -76,8 +80,15 @@
       $('#edit').submit(function(evt) {
         evt.preventDefault();
         var data = $(this).serializeArray();
+        $('#edit').addClass('edit-saving');
         $.post({{ url_for('.save')|tojson|safe }}, data, function(response) {
-          console.log(response);
+          if(response.ok) {
+            $('#edit-modal').modal('hide');
+          }
+          else {
+            alert("A avut loc o eroare la salvare :(");
+          }
+          $('#edit').removeClass('edit-saving');
         });
       });
     </script>
