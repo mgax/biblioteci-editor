@@ -1,9 +1,11 @@
+Flask-OAuthlib==0.4.3
 Flask-Script==0.6.7
 Flask-WTF==0.9.4
 Flask==0.10.1
 itsdangerous==0.23
 Jinja2==2.7.2
 MarkupSafe==0.18
+oauthlib==0.6.1
 path.py==5.0
 requests==2.2.1
 simplejson==3.3.3

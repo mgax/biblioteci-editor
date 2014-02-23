@@ -2,6 +2,7 @@ import logging
 import flask
 from flask.ext.script import Manager
 from flask.ext.wtf import Form
+from flask.ext.oauthlib.client import OAuth
 from werkzeug.contrib.cache import SimpleCache
 from wtforms import TextField, IntegerField
 from wtforms.widgets import HiddenInput, TextArea
@@ -67,9 +68,59 @@ def save():
         return flask.jsonify(ok=False)
 
 
+def setup_oauth(app):
+    oauth = OAuth(app)
+    google = oauth.remote_app(
+        'google',
+        consumer_key=app.config.get('GOOGLE_OAUTH_KEY'),
+        consumer_secret=app.config.get('GOOGLE_OAUTH_SECRET'),
+        request_token_params={
+            'scope': 'https://www.googleapis.com/auth/userinfo.email'},
+        base_url='https://www.googleapis.com/oauth2/v1/',
+        request_token_url=None,
+        access_token_method='POST',
+        access_token_url='https://accounts.google.com/o/oauth2/token',
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+    )
+
+    @app.route('/login')
+    def login():
+        url = flask.url_for('authorized', _external=True)
+        return google.authorize(callback=url)
+
+    @app.route('/logout')
+    def logout():
+        flask.session.pop('google_token', None)
+        return flask.redirect(flask.url_for('index'))
+
+    @app.route('/login/google')
+    @google.authorized_handler
+    def authorized(resp):
+        if resp is None:
+            return 'Access denied: reason=%s error=%s' % (
+                flask.request.args['error_reason'],
+                flask.request.args['error_description'],
+            )
+        flask.session['google_token'] = (resp['access_token'], '')
+        me = google.get('userinfo')
+        return flask.jsonify(data=me.data)
+
+    @google.tokengetter
+    def get_google_oauth_token():
+        return flask.session.get('google_token')
+
+    @app.route('/_whoami')
+    def whoami():
+        if 'google_token' in flask.session:
+            me = google.get('userinfo')
+            return flask.jsonify(data=me.data)
+        return flask.jsonify()
+
+
 def create_app():
     app = flask.Flask(__name__)
     app.config.from_pyfile('settings.py', silent=True)
+    setup_oauth(app)
     app.register_blueprint(views)
     return app
 
