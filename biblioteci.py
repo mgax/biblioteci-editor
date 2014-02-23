@@ -23,6 +23,7 @@ class PropertiesForm(Form):
     website_url = TextField('website_url')
     catalog_url = TextField('catalog_url')
     facebook_url = TextField('facebook_url')
+    open_hours = TextField('open_hours')
 
 
 views = flask.Blueprint('views', __name__)
