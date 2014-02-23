@@ -118,10 +118,6 @@ def setup_oauth(app):
     def get_google_oauth_token():
         return flask.session.get('identity', {}).get('google_token')
 
-    @app.route('/_whoami')
-    def whoami():
-        return flask.jsonify(flask.session.get('identity', {}))
-
 
 def create_app():
     app = flask.Flask(__name__)
