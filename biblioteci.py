@@ -32,8 +32,7 @@ def home():
 
 @views.route('/data')
 def data():
-    data = requests.get(flask.current_app.config['BIBLIOTECI_URL']).content
-    return flask.Response(data, content_type='application/json')
+    return flask.jsonify(github.get_data())
 
 
 def update_feature(data):
