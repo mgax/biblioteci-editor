@@ -24,6 +24,7 @@ class RepoClient(object):
         if resp.status_code >= 400:
             logger.info("GitHub API error: %r", resp.json())
             raise RuntimeError("API error")
+        self.rate_limit_remaining = resp.headers['X-RateLimit-Remaining']
         return resp.json()
 
     def get(self, resource, headers={}):
@@ -61,6 +62,7 @@ def commit(data):
     }
     commit = api.post('git/commits', commit_data)['sha']
     api.patch('git/refs/heads/' + branch, {'sha': commit})
+    logger.info("Rate limit remaining: %s", api.rate_limit_remaining)
 
 
 def get_data():
