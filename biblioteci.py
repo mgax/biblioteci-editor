@@ -3,7 +3,7 @@ import flask
 from flask.ext.script import Manager
 from flask.ext.wtf import Form
 from wtforms import TextField, IntegerField
-from wtforms.widgets import HiddenInput
+from wtforms.widgets import HiddenInput, TextArea
 import requests
 import github
 
@@ -14,7 +14,12 @@ logger.setLevel(logging.INFO)
 class PropertiesForm(Form):
     id = IntegerField('id', widget=HiddenInput())
     name = TextField('name')
-    description = TextField('description')
+    description = TextField('description', widget=TextArea())
+    address = TextField('address')
+    locality = TextField('locality')
+    website_url = TextField('website_url')
+    catalog_url = TextField('catalog_url')
+    facebook_url = TextField('facebook_url')
 
 
 views = flask.Blueprint('views', __name__)

@@ -15,7 +15,7 @@
 
     <div class="modal fade" id="edit-modal" tabindex="-1"
          role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <form class="modal-dialog" id="edit">
+      <form class="modal-dialog form-horizontal" id="edit">
         <div class="modal-content">
           <div class="modal-header">
             <button data-dismiss="modal" aria-hidden="true"
@@ -28,8 +28,11 @@
                 {{ field }}
               {% else %}
                 <div class="form-group">
-                  <label for="{{ field.id }}">{{ field.label }}</label>
-                  {{ field(class='form-control') }}
+                  <label class="col-sm-2 control-label" for="{{ field.id }}">
+                    {{- field.label }}</label>
+                  <div class="col-sm-10">
+                    {{ field(class='form-control') }}
+                  </div>
                 </div>
               {% endif %}
             {% endfor %}
