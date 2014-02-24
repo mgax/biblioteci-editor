@@ -4,6 +4,7 @@ import flask
 from flask.ext.script import Manager
 from flask.ext.wtf import Form
 from flask.ext.oauthlib.client import OAuth
+from raven.contrib.flask import Sentry
 from werkzeug.contrib.cache import SimpleCache
 from wtforms import TextField, IntegerField
 from wtforms.widgets import HiddenInput, TextArea
@@ -43,6 +44,13 @@ def home():
         form=PropertiesForm(),
         identity=get_identity(),
     )
+
+
+@views.route('/_crashme', methods=['GET', 'POST'])
+def crashme():
+    if flask.request.method == 'POST':
+        raise RuntimeError("crashing as requested")
+    return '<form method="POST"><button type="submit">crashme</button></form>'
 
 
 @views.route('/data')
@@ -152,6 +160,7 @@ def create_app():
     app = flask.Flask(__name__)
     app.config.from_pyfile('settings.py', silent=True)
     setup_oauth(app)
+    Sentry(app)
     app.register_blueprint(views)
     return app
 
