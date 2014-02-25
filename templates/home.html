@@ -88,13 +88,14 @@
     </div>
 
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script>
       var map = L.map('map').fitBounds([[48.17, 20.06], [43.50, 29.67]]);
-      var properties;
       var editor_is_new;
       var new_latlng;
+      var feature;
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">' +
@@ -104,11 +105,10 @@
       var layer = L.geoJson([]);
       layer.addTo(map);
 
-      function show_editor(feature_properties, is_new) {
-        properties = feature_properties;
+      function show_editor(feature, is_new) {
         editor_is_new = is_new;
         var set = function(input) {
-          input.val(properties[input.attr('name')]);
+          input.val(feature.properties[input.attr('name')]);
         };
         $('#edit .form-control').each(function(n, el) { set($(el)); });
         set($('#edit [name=id]'));
@@ -117,16 +117,44 @@
         $('#edit-modal').modal();
       }
 
+      function renderPropertiesTable(properties) {
+        var table = $('<table class="properties">');
+        _.forEach(properties, function(value, key) {
+          if(value) {
+            $('<tr>').appendTo(table).append(
+              $('<th>').text(key),
+              $('<td>').text(value)
+            );
+          }
+        });
+        return $('<div>').append(table).html();
+      }
+
       $.get({{ url_for('.data')|tojson|safe }}, function(data) {
         layer.addData(data);
         layer.on('click', function(evt) {
-          show_editor(evt.layer.feature.properties, false);
+          feature = evt.layer.feature;
+          var latlng = evt.layer.getLatLng();
+          var button = $('<button class="edit-btn">editare</button>');
+          var content = $('<div>').append(
+            renderPropertiesTable(feature.properties),
+            '<br>', button);
+          var popup = L.popup().setLatLng(latlng).setContent(content[0]);
+          popup.openOn(map);
+          button.click(function(evt) {
+            evt.preventDefault();
+            console.log('button click');
+            map.closePopup();
+            show_editor(feature, false);
+          });
         });
       });
 
       map.on('contextmenu', function(evt) {
         new_latlng = evt.latlng;
-        show_editor({id: -1, lat: evt.latlng.lat, lng: evt.latlng.lng}, true);
+        var new_feature = {
+          properties: {id: -1, lat: evt.latlng.lat, lng: evt.latlng.lng}};
+        show_editor(new_feature, true);
       });
 
       $('#edit').submit(function(evt) {
@@ -141,7 +169,7 @@
             }
             for(var n = 0; n < data.length; n ++) {
               var kv = data[n];
-              properties[kv.name] = kv.value;
+              feature.properties[kv.name] = kv.value;
             }
           }
           else {
