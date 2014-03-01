@@ -106,7 +106,7 @@
                        'OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      var layer = new L.MarkerClusterGroup();
+      var layer = new L.MarkerClusterGroup({maxClusterRadius: 30});
       layer.addTo(map);
 
       function show_editor(feature, is_new) {
