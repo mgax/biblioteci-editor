@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/leaflet.markercluster-0.4.0/MarkerCluster.Default.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/leaflet.markercluster-0.4.0/MarkerCluster.css') }}">
     <style>
       html, body, #map { height: 100%; margin: 0; }
       .edit-saving-message { display: none; }
@@ -92,6 +94,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='lib/leaflet.markercluster-0.4.0/leaflet.markercluster.js') }}"></script>
     <script>
       var map = L.map('map').fitBounds([[48.17, 20.06], [43.50, 29.67]]);
       var editor_is_new;
@@ -103,7 +106,7 @@
                        'OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      var layer = L.geoJson([]);
+      var layer = new L.MarkerClusterGroup();
       layer.addTo(map);
 
       function show_editor(feature, is_new) {
@@ -132,9 +135,14 @@
       }
 
       $.get({{ url_for('.data')|tojson|safe }}, function(data) {
-        layer.addData(data);
+        _.forEach(data.features, function(feature) {
+            var coord = feature.geometry.coordinates;
+            var latLng = L.latLng([coord[1], coord[0]]);
+            layer.addLayer(new L.Marker(latLng, {feature: feature}));
+        });
+
         layer.on('click', function(evt) {
-          feature = evt.layer.feature;
+          feature = evt.layer.options.feature;
           var latlng = evt.layer.getLatLng();
           var button = $('<button class="edit-btn">editare</button>');
           var content = $('<div>').append(
