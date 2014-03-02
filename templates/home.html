@@ -117,6 +117,10 @@
       var layer = new L.MarkerClusterGroup({maxClusterRadius: 30});
       layer.addTo(map);
 
+      function trim5(value) {
+        return Math.round(value * 10000) / 10000;
+      }
+
       function show_editor(feature, is_new) {
         editor_is_new = is_new;
         var set = function(input) {
@@ -152,8 +156,11 @@
         layer.on('click', function(evt) {
           feature = evt.layer.options.feature;
           var latlng = evt.layer.getLatLng();
+          var coordinates = '<b>Coordonate</b>: ' +
+                            trim5(latlng.lat) + ', ' + trim5(latlng.lng);
           var button = $('<button class="edit-btn">editare</button>');
           var content = $('<div>').append(
+            coordinates, '<br>',
             renderPropertiesTable(feature.properties),
             '<br>', button);
           var popup = L.popup().setLatLng(latlng).setContent(content[0]);
