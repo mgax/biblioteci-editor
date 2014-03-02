@@ -39,10 +39,12 @@ def get_identity():
 
 @views.route('/')
 def home():
+    form = PropertiesForm()
     return flask.render_template(
         'home.html',
-        form=PropertiesForm(),
+        form=form,
         identity=get_identity(),
+        form_labels={f.name: f.label.text for f in form},
     )
 
 

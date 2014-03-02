@@ -22,6 +22,7 @@
       .no-auth #edit .form-group { display: none; }
       .no-auth #edit .modal-footer button { display: none; }
       .leaflet-top .leaflet-control { margin-top: 40px; }
+      .properties th { padding: 0 5px; }
     </style>
   </head>
 
@@ -103,6 +104,7 @@
       var editor_is_new;
       var new_latlng;
       var feature;
+      var form_labels = {{ form_labels|tojson|safe }};
 
       var osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">' +
@@ -136,9 +138,10 @@
       function renderPropertiesTable(properties) {
         var table = $('<table class="properties">');
         _.forEach(properties, function(value, key) {
-          if(value) {
+          var label = form_labels[key];
+          if(label && value) {
             $('<tr>').appendTo(table).append(
-              $('<th>').text(key),
+              $('<th>').text(label),
               $('<td>').text(value)
             );
           }
